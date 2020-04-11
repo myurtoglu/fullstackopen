@@ -1,0 +1,19 @@
+# Can be opened with https://www.websequencediagrams.com.
+
+note over browser:
+User populates the note field and taps submit
+end note
+
+browser->server: HTTP POST https://fullstack-exampleapp.herokuapp.com/new_note
+
+note over server:
+Server appends the note to the notes array
+end note
+
+
+server-->browser: redirect to /notes
+
+note over browser:
+Browser repeats the sequence starting with GET to /notes
+Updated notes array is displayed
+end note

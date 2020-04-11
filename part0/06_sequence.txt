@@ -1,0 +1,19 @@
+# Can be opened with https://www.websequencediagrams.com.
+
+note over browser:
+User populates the note field and taps submit
+end note
+
+note over browser:
+* spa.js executes code to add the new note to notes locally
+* Redraws notes, showing the newly added note
+* Prepares a POST request
+end note
+
+browser->server: HTTP POST https://fullstack-exampleapp.herokuapp.com/new_note_spa
+
+note over server:
+Server appends the note to the notes array
+end note
+
+server-->browser: Response with status code 201 (Created)
