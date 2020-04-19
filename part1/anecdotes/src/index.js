@@ -7,14 +7,20 @@ function getRandomInt(max) {
 
 const App = (props) => {
   const [selected, setSelected] = useState(0)
+  const [votes, setVotes] = useState(new Array(props.anecdotes.length).fill(0))
 
   const selectRandomElementInAnecdotes = () =>
     setSelected(getRandomInt(props.anecdotes.length))
 
+  const voteForElement = () =>
+    setVotes(votes.map((value, idx) => value + (idx === selected ? 1 : 0)))
+
   return (
     <div>
       {props.anecdotes[selected]}
+      <br/>has {votes[selected]} votes
       <br/>
+      <button onClick={voteForElement}>vote</button>
       <button onClick={selectRandomElementInAnecdotes}>next anecdote</button>
     </div>
   )
