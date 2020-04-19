@@ -5,23 +5,39 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
+const HighestVotedAnecdote = ({ anecdotes, votes }) => {
+  const maxVote = Math.max(...votes)
+  const maxVotedAnecdote = anecdotes[votes.indexOf(maxVote)]
+  console.log(maxVotedAnecdote)
+  return (
+    <div>
+      <h1>Anecdote with most votes</h1>
+      {maxVotedAnecdote}
+      <br/>has {maxVote} votes
+    </div>
+  )
+}
+
 const App = (props) => {
+  const anecdotes = props.anecdotes
   const [selected, setSelected] = useState(0)
-  const [votes, setVotes] = useState(new Array(props.anecdotes.length).fill(0))
+  const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
 
   const selectRandomElementInAnecdotes = () =>
-    setSelected(getRandomInt(props.anecdotes.length))
+    setSelected(getRandomInt(anecdotes.length))
 
   const voteForElement = () =>
     setVotes(votes.map((value, idx) => value + (idx === selected ? 1 : 0)))
 
   return (
     <div>
-      {props.anecdotes[selected]}
+      <h1>Anecdote of the day</h1>
+      {anecdotes[selected]}
       <br/>has {votes[selected]} votes
       <br/>
       <button onClick={voteForElement}>vote</button>
       <button onClick={selectRandomElementInAnecdotes}>next anecdote</button>
+      <HighestVotedAnecdote anecdotes={anecdotes} votes={votes}/>
     </div>
   )
 }
