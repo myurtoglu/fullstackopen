@@ -14,6 +14,15 @@ const App = () => {
   const handleNameChange = (event) => setNewName(event.target.value)
   const handleNumberChange = (event) => setNewNumber(event.target.value)
   const handleSearchQueryChange = (event) => setSearchQuery(event.target.value)
+  const remove = (personToDelete) => {
+    if (window.confirm(`Delete ${personToDelete.name} ?`)) { 
+      phonebook
+        .remove(personToDelete.id)
+        .then(setPersons(
+          persons.filter(person => personToDelete.id !== person.id))
+      )
+    }
+  }
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -48,7 +57,7 @@ const App = () => {
         handleNameChange={handleNameChange}
         handleNumberChange={handleNumberChange}/>
       <h3>Numbers</h3>
-      <Persons persons={persons} searchQuery={searchQuery}/>
+      <Persons persons={persons} searchQuery={searchQuery} remove={remove}/>
     </div>
   )
 }
