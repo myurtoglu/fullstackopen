@@ -11,10 +11,7 @@ const App = () => {
   useEffect(() => {
     axios
       .get('https://restcountries.eu/rest/v2/all')
-      .then(result => {
-        console.log(result)
-        setCountries(result.data)
-      })
+      .then(result => setCountries(result.data))
   }, [])
 
   return (
