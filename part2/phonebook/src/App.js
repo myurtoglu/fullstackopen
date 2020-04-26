@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Persons from "./components/Persons"
 import PersonForm from "./components/PersonForm"
 import Filter from "./components/Filter"
-import axios from 'axios'
+import phonebook from "./services/phonebook"
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -21,19 +21,17 @@ const App = () => {
       // Person entry with the same name already exists.
       window.alert(`${newName} is already added to phonebook`)
     } else {
-      setPersons(persons.concat({
-        name: newName,
-        number: newNumber,
-      }))
+      const newPerson = { name: newName, number: newNumber }
+      phonebook
+        .create(newPerson)
+        .then(newPerson => setPersons(persons.concat(newPerson)))
     }
     setNewName("")
     setNewNumber("")
   }
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(result => setPersons(result.data))
+    phonebook.getAll().then(persons => setPersons(persons))
   }, [])
 
   return (
