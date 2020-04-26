@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Persons from "./components/Persons"
 import PersonForm from "./components/PersonForm"
 import Filter from "./components/Filter"
+import Notification from "./components/Notification"
 import phonebook from "./services/phonebook"
 
 const App = () => {
@@ -10,6 +11,7 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ searchQuery, setSearchQuery ] = useState('')
+  const [ message, setMessage ] = useState(null)
 
   const handleNameChange = (event) => setNewName(event.target.value)
   const handleNumberChange = (event) => setNewNumber(event.target.value)
@@ -35,15 +37,22 @@ const App = () => {
         const filteredPerson = filteredPersons[0]
         phonebook
           .update(filteredPerson.id, { ...filteredPerson, number: newNumber})
-          .then(updatedPerson => setPersons(
-            persons.map(person => person.id === filteredPerson.id ? updatedPerson : person)
-        ))
+          .then(updatedPerson => {
+            setPersons(
+              persons.map(person => person.id === filteredPerson.id ? updatedPerson : person))
+            setMessage(`${newName}'s phone number updated to ${newNumber}`)
+            setTimeout(() => setMessage(null), 5000)
+          })
       } 
     } else {
       const newPerson = { name: newName, number: newNumber }
       phonebook
         .create(newPerson)
-        .then(newPerson => setPersons(persons.concat(newPerson)))
+        .then(newPerson => {
+          setPersons(persons.concat(newPerson))
+          setMessage(`Added ${newPerson.name}`)
+          setTimeout(() => setMessage(null), 5000)
+        })
     }
     setNewName("")
     setNewNumber("")
@@ -56,6 +65,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter
         searchQuery={searchQuery}
         handleSearchQueryChange={handleSearchQueryChange}/>
