@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Persons from "./components/Persons"
 import PersonForm from "./components/PersonForm"
 import Filter from "./components/Filter"
-import Notification from "./components/Notification"
+import { Notification, ErrorNotification } from "./components/Notification"
 import phonebook from "./services/phonebook"
 
 const App = () => {
@@ -12,6 +12,7 @@ const App = () => {
   const [ newNumber, setNewNumber ] = useState('')
   const [ searchQuery, setSearchQuery ] = useState('')
   const [ message, setMessage ] = useState(null)
+  const [ errorMessage, setErrorMessage ] = useState(null)
 
   const handleNameChange = (event) => setNewName(event.target.value)
   const handleNumberChange = (event) => setNewNumber(event.target.value)
@@ -43,6 +44,10 @@ const App = () => {
             setMessage(`${newName}'s phone number updated to ${newNumber}`)
             setTimeout(() => setMessage(null), 5000)
           })
+          .catch(error => {
+            setErrorMessage(`Information of ${newName} has already been removed from server`)
+            setTimeout(() => setErrorMessage(null), 5000)
+          })
       } 
     } else {
       const newPerson = { name: newName, number: newNumber }
@@ -66,6 +71,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <Notification message={message} />
+      <ErrorNotification message={errorMessage} />
       <Filter
         searchQuery={searchQuery}
         handleSearchQueryChange={handleSearchQueryChange}/>
