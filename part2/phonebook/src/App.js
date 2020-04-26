@@ -26,9 +26,19 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    if (persons.filter(person => person.name === newName).length > 0) {
-      // Person entry with the same name already exists.
-      window.alert(`${newName} is already added to phonebook`)
+    const filteredPersons = persons.filter(person => person.name === newName)
+    if (filteredPersons.length > 0) {
+      // Person entry with the same name already exists, update their number.
+      if (window.confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`)
+      ) {
+        const filteredPerson = filteredPersons[0]
+        phonebook
+          .update(filteredPerson.id, { ...filteredPerson, number: newNumber})
+          .then(updatedPerson => setPersons(
+            persons.map(person => person.id === filteredPerson.id ? updatedPerson : person)
+        ))
+      } 
     } else {
       const newPerson = { name: newName, number: newNumber }
       phonebook
