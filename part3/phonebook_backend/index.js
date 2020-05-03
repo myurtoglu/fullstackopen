@@ -54,11 +54,26 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-  const newPerson = {
-    name: request.body.name,
-    number: request.body.number,
-    id: randomId()
+  const name = request.body.name
+  const number = request.body.number
+  if (!name) {
+    return response.status(400).json({
+      error: 'name field missing'
+    })
   }
+  if (!number) {
+    return response.status(400).json({
+      error: 'number field missing'
+    })
+  }
+
+  if (persons.map(person => person.name).includes(name)) {
+    return response.status(400).json({
+      error: 'name already exists'
+    })
+  }
+
+  const newPerson = { name: name, number: number, id: randomId() }
   persons = persons.concat(newPerson)
   response.json(newPerson)
 })
