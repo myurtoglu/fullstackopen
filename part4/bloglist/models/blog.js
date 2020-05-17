@@ -1,10 +1,5 @@
 const mongoose = require('mongoose')
 
-mongoose.set('useFindAndModify', false)
-
-const mongoUrl = 'mongodb+srv://fullstack:fs2020@cluster0-x6eeh.mongodb.net/bloglist-app?retryWrites=true&w=majority'
-mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true })
-
 const blogSchema = new mongoose.Schema({
   title: String,
   author: String,
