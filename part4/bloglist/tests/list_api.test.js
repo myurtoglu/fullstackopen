@@ -74,6 +74,14 @@ test('correct number of blogs are returned', async () => {
   expect(blogsInResponse.length).toBe(blogs.length)
 })
 
+test('unique id property of the posts is named id', async () => {
+  const response = await api.get('/api/blogs')
+  const blogsInResponse = response.body
+  blogsInResponse.forEach(blog => {
+    expect(blog.id).toBeDefined()
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
