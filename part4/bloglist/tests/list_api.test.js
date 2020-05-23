@@ -82,6 +82,25 @@ test('unique id property of the posts is named id', async () => {
   })
 })
 
+test('able to create a new blog post', async () => {
+  const newPost = {
+    title: 'Test Post',
+    author: 'Test Author',
+    url: 'https://test.com/',
+    likes: 1,
+  }
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+  const blogsInResponse = response.body
+  expect(blogsInResponse.length).toBe(blogs.length + 1)
+  expect(blogsInResponse.map(blog => blog.title)).toContain(newPost.title)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
