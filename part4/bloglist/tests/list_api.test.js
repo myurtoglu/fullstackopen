@@ -120,6 +120,30 @@ test('if likes is missing, it defaults to 0', async () => {
   expect(blogsInResponse[0].likes).toBe(0)
 })
 
+test('if title is missing, responds with error', async () => {
+  const newPost = {
+    author: 'Test Author',
+    url: 'https://test.com/',
+  }
+  await Blog.deleteMany({})
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(400)
+})
+
+test('if url is missing, responds with error', async () => {
+  const newPost = {
+    title: 'Test Post',
+    author: 'Test Author',
+  }
+  await Blog.deleteMany({})
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(400)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
