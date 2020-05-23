@@ -161,6 +161,39 @@ afterAll(() => {
   mongoose.connection.close()
 })
 
+test('put succeeds if id is valid', async () => {
+  const originalPost = {
+    title: 'Test Post',
+    author: 'Test Author',
+    url: 'https://test.com/',
+    likes: 0,
+  }
+  await Blog.deleteMany({})
+  await api
+    .post('/api/blogs')
+    .send(originalPost)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const updatedPost = {
+    title: 'Test Post',
+    author: 'Test Author',
+    url: 'https://test.com/',
+    likes: 5,
+  }
+
+  const initialBlogs = await blogsInDb()
+  const blogToUpdate = initialBlogs[0]
+
+  await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(updatedPost)
+    .expect(200)
+
+  const updatedBlogPost = await blogsInDb()
+  expect(updatedBlogPost[0].likes).toBe(updatedPost.likes)
+})
+
 // Helpers
 
 const blogsInDb = async () => {
