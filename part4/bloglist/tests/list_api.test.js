@@ -144,6 +144,26 @@ test('if url is missing, responds with error', async () => {
     .expect(400)
 })
 
+test('delete succeeds with 204 if id is valid', async () => {
+  const initialBlogs = await blogsInDb()
+  const blogToDelete = initialBlogs[0]
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
+
+  const finalBlogs = await blogsInDb()
+  expect(finalBlogs).toHaveLength(initialBlogs.length - 1)
+  expect(finalBlogs.map(blog => blog.title)).not.toContain(blogToDelete.title)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
+
+// Helpers
+
+const blogsInDb = async () => {
+  const response = await api.get('/api/blogs')
+  return response.body
+}
