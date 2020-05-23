@@ -101,6 +101,25 @@ test('able to create a new blog post', async () => {
   expect(blogsInResponse.map(blog => blog.title)).toContain(newPost.title)
 })
 
+test('if likes is missing, it defaults to 0', async () => {
+  const newPost = {
+    title: 'Test Post',
+    author: 'Test Author',
+    url: 'https://test.com/',
+  }
+  await Blog.deleteMany({})
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+  const blogsInResponse = response.body
+  expect(blogsInResponse.length).toBe(1)
+  expect(blogsInResponse[0].likes).toBe(0)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
