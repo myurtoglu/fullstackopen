@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const api = supertest(app)
 
@@ -59,6 +60,7 @@ const blogs = [
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Promise.all(blogs.map(blog => new Blog(blog)).map(blog => blog.save()))
+  await User.deleteMany({})
 })
 
 test('blogs are returned as json', async () => {
@@ -89,8 +91,12 @@ test('able to create a new blog post', async () => {
     url: 'https://test.com/',
     likes: 1,
   }
+
+  const token = await generateValidToken()
+
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newPost)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -101,15 +107,33 @@ test('able to create a new blog post', async () => {
   expect(blogsInResponse.map(blog => blog.title)).toContain(newPost.title)
 })
 
+test('unable to create a new blog post if token not provided', async () => {
+  const newPost = {
+    title: 'Test Post',
+    author: 'Test Author',
+    url: 'https://test.com/',
+    likes: 1,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(401)
+})
+
 test('if likes is missing, it defaults to 0', async () => {
   const newPost = {
     title: 'Test Post',
     author: 'Test Author',
     url: 'https://test.com/',
   }
+
   await Blog.deleteMany({})
+  const token = await generateValidToken()
+
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newPost)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -126,8 +150,11 @@ test('if title is missing, responds with error', async () => {
     url: 'https://test.com/',
   }
   await Blog.deleteMany({})
+  const token = await generateValidToken()
+
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newPost)
     .expect(400)
 })
@@ -138,18 +165,38 @@ test('if url is missing, responds with error', async () => {
     author: 'Test Author',
   }
   await Blog.deleteMany({})
+  const token = await generateValidToken()
+
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newPost)
     .expect(400)
 })
 
 test('delete succeeds with 204 if id is valid', async () => {
+  const originalPost = {
+    title: 'Test Post',
+    author: 'Test Author',
+    url: 'https://test.com/',
+    likes: 0,
+  }
+  await Blog.deleteMany({})
+  const token = await generateValidToken()
+
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
+    .send(originalPost)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
   const initialBlogs = await blogsInDb()
   const blogToDelete = initialBlogs[0]
 
   await api
     .delete(`/api/blogs/${blogToDelete.id}`)
+    .set('Authorization', `bearer ${token}`)
     .expect(204)
 
   const finalBlogs = await blogsInDb()
@@ -169,8 +216,11 @@ test('put succeeds if id is valid', async () => {
     likes: 0,
   }
   await Blog.deleteMany({})
+  const token = await generateValidToken()
+
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(originalPost)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -199,4 +249,19 @@ test('put succeeds if id is valid', async () => {
 const blogsInDb = async () => {
   const response = await api.get('/api/blogs')
   return response.body
+}
+
+const generateValidToken = async () => {
+  const newUser = {
+    username: 'test',
+    name: 'test',
+    password: 'pwd',
+  }
+  await api.post('/api/users').send(newUser)
+
+  const user = {
+    username: 'test',
+    password: 'pwd',
+  }
+  return (await api.post('/api/login').send(user)).body.token
 }
